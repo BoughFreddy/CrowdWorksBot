@@ -1,0 +1,28 @@
+# One keyword per line. A job is sent to Telegram if ANY keyword matches its
+# category, title or description. Lines starting with # are ignored.
+ECサイト制作
+ECサイトデザイン
+ECサイト運用ツール開発
+ホームページ作成
+Webデザイン
+WordPress制作
+LP（ランディングページ）制作
+HTML・CSSコーディング
+Webサイト修正・更新・機能追加
+モバイルサイト・スマートフォンサイト制作
+UI/UX設計・デザイン
+インタラクションデザイン
+iPhone・iPadアプリ開発
+Androidアプリ開発
+スマートフォン アプリ開発・サイト構築
+ソーシャルゲーム開発
+Androidゲーム開発
+iPhone・iPadゲーム開発
+携帯アプリ・モバイルアプリ開発
+機械学習・ディープラーニング
+ChatGPT開発
+AI・チャットボット開発
+Web開発・システム設計
+アプリケーション開発
+保守・運用・更新
+AIシステム開発・導入・自動化支援
