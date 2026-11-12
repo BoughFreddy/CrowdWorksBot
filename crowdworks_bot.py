@@ -109,7 +109,7 @@ def polite_get(url):
     if wait > 0:
         time.sleep(wait)
     try:
-        r = session.get(url, timeout=30)
+        r = session.get(url, timeout=60)
     finally:
         _last_request = time.time()
     if r.status_code == 429:
@@ -195,16 +195,26 @@ def is_excluded(job):
 
 # -------------------------------------------------------------- telegram ----
 def tg_api(method, files=None, **params):
+    global CHAT_ID
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
     for _ in range(3):
         r = requests.post(url, data=params, files=files, timeout=60)
         data = r.json()
         if data.get("ok"):
             return data["result"]
-        retry = data.get("parameters", {}).get("retry_after")
+        tg_params = data.get("parameters", {})
+        retry = tg_params.get("retry_after")
         if r.status_code == 429 and retry:
             log.warning("Telegram rate limit, waiting %ss", retry)
             time.sleep(retry + 1)
+            continue
+        new_chat_id = tg_params.get("migrate_to_chat_id")
+        if new_chat_id:
+            log.warning("Group migrated to supergroup. Updating CHAT_ID: %s -> %s", CHAT_ID, new_chat_id)
+            print(f"\n⚠️  Your group was upgraded to a supergroup. Update your .env:\nTELEGRAM_CHAT_ID={new_chat_id}\n")
+            CHAT_ID = str(new_chat_id)
+            if "chat_id" in params:
+                params["chat_id"] = CHAT_ID
             continue
         raise RuntimeError(f"Telegram error: {data.get('description')}")
     raise RuntimeError("Telegram: too many retries")
@@ -1071,15 +1081,15 @@ def capture_cards(url_to_ids):
                     page.goto(url, wait_until="domcontentloaded", timeout=45000)
                     page.wait_for_selector('a[href*="/public/jobs/"]', timeout=20000)
                     try:
-                        page.wait_for_load_state("networkidle", timeout=10000)
+                        page.wait_for_load_state("networkidle", timeout=60000)
                     except Exception:
                         pass
                     rendered[url] = page.content()
                     for jid in page.evaluate(_MARK_CARDS_JS, list(ids)):
                         try:
                             loc = page.locator(f'[data-cwbot-card="{jid}"]').first
-                            loc.scroll_into_view_if_needed(timeout=5000)
-                            shots[jid] = loc.screenshot(timeout=10000)
+                            loc.scroll_into_view_if_needed(timeout=20000)
+                            shots[jid] = loc.screenshot(timeout=60000)
                         except Exception as e:
                             log.warning("Screenshot of job %s failed: %s", jid, e)
                 except Exception as e:
