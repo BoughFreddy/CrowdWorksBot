@@ -109,7 +109,7 @@ def polite_get(url):
     if wait > 0:
         time.sleep(wait)
     try:
-        r = session.get(url, timeout=60)
+        r = session.get(url, timeout=120)
     finally:
         _last_request = time.time()
     if r.status_code == 429:
@@ -198,7 +198,7 @@ def tg_api(method, files=None, **params):
     global CHAT_ID
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
     for _ in range(3):
-        r = requests.post(url, data=params, files=files, timeout=60)
+        r = requests.post(url, data=params, files=files, timeout=120)
         data = r.json()
         if data.get("ok"):
             return data["result"]
@@ -862,7 +862,7 @@ def _load_avatar(url, size):
     try:
         from io import BytesIO
         from PIL import Image
-        r = session.get(url, timeout=15)
+        r = session.get(url, timeout=120)
         r.raise_for_status()
         im = Image.open(BytesIO(r.content)).convert("RGBA")
         w, h = im.size
